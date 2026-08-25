@@ -42,6 +42,62 @@ class SportClient:
         return self.action("sit")
 
 
+class SlamClient:
+    """Unitree's built-in SLAM (mapping/relocation/nav goals) via shep's
+    /api/v1/slam/{name}. Requires the unitree_slam module's own server
+    process running on the robot — see shep's README for details. A call
+    against a stopped SLAM service raises ShepherdResponseError with a
+    nonzero RPC code in its message, the same as any other unreachable
+    robot call; a 501 means shep itself never initialized a SLAM client.
+    """
+
+    def __init__(self, transport: HttpTransport) -> None:
+        self._transport = transport
+
+    def command(self, name: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        return self._transport.request("POST", "api/v1/slam/%s" % name, params)
+
+    def start_mapping(self, slam_type: str = "indoor") -> Dict[str, Any]:
+        return self.command("start_mapping", {"slam_type": slam_type})
+
+    def end_mapping(self, address: str) -> Dict[str, Any]:
+        return self.command("end_mapping", {"address": address})
+
+    def start_relocation(
+        self, address: str,
+        x: float = 0.0, y: float = 0.0, z: float = 0.0,
+        q_x: float = 0.0, q_y: float = 0.0, q_z: float = 0.0, q_w: float = 1.0,
+    ) -> Dict[str, Any]:
+        return self.command("start_relocation", {
+            "address": address, "x": x, "y": y, "z": z,
+            "q_x": q_x, "q_y": q_y, "q_z": q_z, "q_w": q_w,
+        })
+
+    def pose_nav(
+        self, x: float, y: float, z: float = 0.0,
+        q_x: float = 0.0, q_y: float = 0.0, q_z: float = 0.0, q_w: float = 1.0,
+        mode: int = 1, speed: float = 0.8,
+    ) -> Dict[str, Any]:
+        """Drive the robot autonomously to (x, y) via Unitree's own SLAM
+        planner. Unlike sport.move(), this is not subject to shep's
+        dead-man timeout — it's a fire-and-forget goal, not a per-tick
+        velocity command. Poll telemetry()["slam"]["task_result"] or watch
+        telemetry.stream() for arrival."""
+        return self.command("pose_nav", {
+            "targetPose": {"x": x, "y": y, "z": z, "q_x": q_x, "q_y": q_y, "q_z": q_z, "q_w": q_w},
+            "mode": mode, "speed": speed,
+        })
+
+    def pause_nav(self) -> Dict[str, Any]:
+        return self.command("pause_nav")
+
+    def resume_nav(self) -> Dict[str, Any]:
+        return self.command("resume_nav")
+
+    def stop(self) -> Dict[str, Any]:
+        return self.command("stop")
+
+
 class CameraClient:
     def __init__(self, transport: HttpTransport, base_url: str) -> None:
         self._transport = transport
@@ -109,6 +165,7 @@ class Shepherd:
         self.sport = SportClient(self._transport)
         self.camera = CameraClient(self._transport, self.base_url)
         self.telemetry = TelemetryClient(self._transport, self.base_url)
+        self.slam = SlamClient(self._transport)
 
     def health(self) -> Dict[str, Any]:
         return self._transport.request("GET", "api/v1/health")
