@@ -84,7 +84,7 @@ class SlamClient:
         velocity command. Poll telemetry()["slam"]["task_result"] or watch
         telemetry.stream() for arrival."""
         return self.command("pose_nav", {
-            "targetPose": {"x": x, "y": y, "z": z, "q_x": q_x, "q_y": q_y, "q_z": q_z, "q_w": q_w},
+            "x": x, "y": y, "z": z, "q_x": q_x, "q_y": q_y, "q_z": q_z, "q_w": q_w,
             "mode": mode, "speed": speed,
         })
 

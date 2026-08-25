@@ -39,6 +39,21 @@ class ClientTests(unittest.TestCase):
         self.assertEqual(request.full_url, "http://127.0.0.1:8080/api/v1/motion/velocity")
         self.assertEqual(json.loads(request.data), {"vx": 0.2, "vy": 0.1, "vyaw": -0.1})
 
+    @patch("shepherd_sdk.transport.urlopen")
+    def test_slam_pose_nav_sends_flat_params(self, urlopen):
+        # Regression: shep's server-side dispatch does client.pose_nav(**body) —
+        # the body must be flat kwargs (x, y, ...), NOT nested under "targetPose".
+        # That nesting is something shep's own SlamClient does internally when
+        # it calls the real SLAM RPC; pre-nesting it here breaks the dispatch.
+        urlopen.return_value = FakeResponse({"ok": True})
+        self.client.slam.pose_nav(x=1.0, y=2.0)
+        request = urlopen.call_args.args[0]
+        self.assertEqual(request.full_url, "http://127.0.0.1:8080/api/v1/slam/pose_nav")
+        body = json.loads(request.data)
+        self.assertEqual(body["x"], 1.0)
+        self.assertEqual(body["y"], 2.0)
+        self.assertNotIn("targetPose", body)
+
 
 if __name__ == "__main__":
     unittest.main()
