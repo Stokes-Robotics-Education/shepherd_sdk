@@ -45,9 +45,17 @@ option_list = [
     TestOption(name="deadman check", id=17),
     TestOption(name="telemetry snapshot", id=18),
     TestOption(name="telemetry stream", id=19),
-    TestOption(name="camera snapshot", id=20),
-    TestOption(name="estop", id=21),
-    TestOption(name="estop reset", id=22),
+    TestOption(name="faults", id=20),
+    TestOption(name="camera snapshot", id=21),
+    TestOption(name="start_mapping", id=22),
+    TestOption(name="end_mapping", id=23),
+    TestOption(name="start_relocation", id=24),
+    TestOption(name="pose_nav", id=25),
+    TestOption(name="pause_nav", id=26),
+    TestOption(name="resume_nav", id=27),
+    TestOption(name="slam stop", id=28),
+    TestOption(name="estop", id=29),
+    TestOption(name="estop reset", id=30),
 ]
 
 
@@ -147,9 +155,30 @@ if __name__ == "__main__":
                 count += 1
                 if count >= 5:
                     break
+        elif name == "faults":
+            faults = robot.telemetry.get().get("telemetry", {}).get("faults", [])
+            print("No active faults." if not faults else faults)
         elif name == "camera snapshot":
             path = robot.camera.save_snapshot("snapshot.jpg")
             print("Saved", path)
+        elif name == "start_mapping":
+            pprint(robot.slam.start_mapping())
+        elif name == "end_mapping":
+            address = input("Save path [/home/unitree/map.pcd]: ") or "/home/unitree/map.pcd"
+            pprint(robot.slam.end_mapping(address))
+        elif name == "start_relocation":
+            address = input("Map path [/home/unitree/map.pcd]: ") or "/home/unitree/map.pcd"
+            pprint(robot.slam.start_relocation(address))
+        elif name == "pose_nav":
+            x = float(input("Target x: ") or 0)
+            y = float(input("Target y: ") or 0)
+            pprint(robot.slam.pose_nav(x=x, y=y))
+        elif name == "pause_nav":
+            pprint(robot.slam.pause_nav())
+        elif name == "resume_nav":
+            pprint(robot.slam.resume_nav())
+        elif name == "slam stop":
+            pprint(robot.slam.stop())
         elif name == "estop":
             pprint(robot.emergency_stop())
             print("E-stop is latched. Use 'estop reset' before further motion/posture commands.")

@@ -54,7 +54,7 @@ only the high-level sport API, not raw joint control.
 | `core/` | `health.py` — service/robot health and capability discovery |
 | `high_level/` | `movement.py` (stand + short walk + stop), `emergency_stop.py`, `interactive_test.py` (menu-driven manual test of every action, styled after `go2_sport_client.py`) |
 | `front_camera/` | `snapshot.py` (save one JPEG), `live_view.py` (optional, OpenCV window over the MJPEG stream) |
-| `telemetry/` | `stream.py` — live WebSocket telemetry |
+| `telemetry/` | `stream.py` — live WebSocket telemetry; `faults.py` — read the Fault Services diagnostic feed |
 | `slam/` | `mapping.py` (start/end a mapping session), `navigate.py` (relocalize + one nav goal) — needs `shep`'s SLAM client available, see its README |
 | `ai/` | `person_follow.py` — optional YOLO person-centering demo |
 
