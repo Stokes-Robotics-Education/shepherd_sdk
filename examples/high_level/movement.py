@@ -1,9 +1,10 @@
+import sys
 import time
 
 from shepherd_sdk import Shepherd
 
 
-robot = Shepherd()
+robot = Shepherd(sys.argv[1]) if len(sys.argv) > 1 else Shepherd()
 print("WARNING: clear the area around the robot before continuing.")
 input("Press Enter to stand and walk briefly...")
 

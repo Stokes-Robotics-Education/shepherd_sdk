@@ -3,6 +3,7 @@
 Install OpenCV, NumPy, and Ultralytics separately. They are deliberately not SDK
 dependencies. Start with the Go2 supported and keep the physical controller ready.
 """
+import sys
 import time
 from urllib.request import urlopen
 
@@ -13,7 +14,7 @@ from ultralytics import YOLO
 from shepherd_sdk import Shepherd
 
 
-robot = Shepherd()
+robot = Shepherd(sys.argv[1]) if len(sys.argv) > 1 else Shepherd()
 model = YOLO("yolo11n.pt")
 stream = urlopen(robot.camera.stream_url("front"))
 buffer = b""

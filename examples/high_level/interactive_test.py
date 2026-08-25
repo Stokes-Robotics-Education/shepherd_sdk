@@ -5,9 +5,9 @@ driving the robot through Shep's HTTP/WebSocket API instead of raw DDS.
 Usage:
     .venv/bin/python examples/high_level/interactive_test.py [host]
 
-    host defaults to "localhost" (matches this dev box, where shep.local
-    isn't resolvable yet). Pass an IP or hostname to override, e.g.:
-    .venv/bin/python examples/high_level/interactive_test.py shep.local
+    host defaults to shep.local (or $SHEP_HOST if set). Pass an IP or
+    hostname to override, e.g.:
+    .venv/bin/python examples/high_level/interactive_test.py 192.168.4.74
 """
 
 import sys
@@ -81,8 +81,7 @@ if __name__ == "__main__":
     print("WARNING: Please ensure there are no obstacles around the robot while running this example.")
     input("Press Enter to continue...")
 
-    host = sys.argv[1] if len(sys.argv) > 1 else "localhost"
-    robot = Shepherd(host=host)
+    robot = Shepherd(sys.argv[1]) if len(sys.argv) > 1 else Shepherd()
 
     test_option = TestOption(name=None, id=None)
     user_interface = UserInterface()

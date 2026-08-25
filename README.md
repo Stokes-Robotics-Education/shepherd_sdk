@@ -32,6 +32,18 @@ python3 examples/telemetry/stream.py
 
 ## Examples
 
+Every example takes the Shep host as an optional first positional argument,
+the same convention as Unitree's own examples taking a network interface
+(`python3 go2_sport_client.py eth0`):
+
+```bash
+python3 examples/core/health.py                # shep.local, or $SHEP_HOST if set
+python3 examples/core/health.py 192.168.4.74    # explicit host/IP
+```
+
+`front_camera/live_view.py` additionally takes a camera source as a second
+argument (default `front`).
+
 Layered by capability, the same way as Unitree's own SDK examples
 (`unitree_sdk2_python/example/go2/{front_camera,high_level}/`) — one folder
 per subsystem. There is no `low_level/` folder: Shep intentionally exposes

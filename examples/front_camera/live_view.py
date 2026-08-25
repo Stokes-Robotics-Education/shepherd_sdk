@@ -6,6 +6,12 @@ calling VideoClient directly.
 
 Install OpenCV and NumPy separately. They are deliberately not SDK
 dependencies.
+
+Usage:
+    .venv/bin/python examples/front_camera/live_view.py [host] [source]
+
+    host defaults to shep.local (or $SHEP_HOST if set); source defaults
+    to "front".
 """
 import sys
 from urllib.request import urlopen
@@ -17,9 +23,8 @@ from shepherd_sdk import Shepherd
 
 
 def main() -> None:
-    host = sys.argv[1] if len(sys.argv) > 1 else "localhost"
     source = sys.argv[2] if len(sys.argv) > 2 else "front"
-    robot = Shepherd(host=host)
+    robot = Shepherd(sys.argv[1]) if len(sys.argv) > 1 else Shepherd()
 
     stream = urlopen(robot.camera.stream_url(source))
     buffer = b""
