@@ -89,6 +89,13 @@ class ClientTests(unittest.TestCase):
         self.assertEqual(request.full_url, "http://127.0.0.1:8080/api/v1/slam/waypoints")
         self.assertEqual(json.loads(request.data), {"name": "loading_zone"})
 
+    @patch("shepherd_sdk.transport.urlopen")
+    def test_record_waypoint_with_action(self, urlopen):
+        urlopen.return_value = FakeResponse({"ok": True})
+        self.client.slam.record_waypoint("loading_zone", action="hello")
+        request = urlopen.call_args.args[0]
+        self.assertEqual(json.loads(request.data), {"name": "loading_zone", "action": "hello"})
+
 
 if __name__ == "__main__":
     unittest.main()

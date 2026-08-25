@@ -108,12 +108,20 @@ class SlamClient:
     def stop(self) -> Dict[str, Any]:
         return self.command("stop")
 
-    def record_waypoint(self, name: str) -> Dict[str, Any]:
+    def record_waypoint(self, name: str, action: Optional[str] = None) -> Dict[str, Any]:
         """Capture the robot's current live SLAM pose under name — a button
         press, not typed x/y. Raises if no SLAM pose is available yet
         (telemetry()["slam"]["pose"] must have been published at least
-        once)."""
-        return self._transport.request("POST", "api/v1/slam/waypoints", {"name": name})
+        once).
+
+        action, if given, must be one of capabilities()["actions"] — shep
+        fires it automatically once the robot arrives after a later
+        goto_waypoint(name), server-side, independent of whether this
+        process is still connected when arrival happens."""
+        body = {"name": name}
+        if action:
+            body["action"] = action
+        return self._transport.request("POST", "api/v1/slam/waypoints", body)
 
     def list_waypoints(self) -> Dict[str, Any]:
         return self._transport.request("GET", "api/v1/slam/waypoints")["waypoints"]

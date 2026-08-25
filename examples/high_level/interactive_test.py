@@ -182,7 +182,8 @@ if __name__ == "__main__":
             pprint(robot.slam.start_relocation(name=slot))
         elif name == "record_waypoint":
             wp_name = input("Waypoint name: ").strip()
-            pprint(robot.slam.record_waypoint(wp_name))
+            wp_action = input("Action on arrival (blank for none, e.g. hello): ").strip() or None
+            pprint(robot.slam.record_waypoint(wp_name, action=wp_action))
         elif name == "list_waypoints":
             pprint(robot.slam.list_waypoints())
         elif name == "goto_waypoint":
