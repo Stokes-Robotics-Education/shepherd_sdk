@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterator, Optional
 from urllib.parse import urlparse, urlunparse
@@ -88,9 +89,15 @@ class TelemetryClient:
 
 
 class Shepherd:
-    """Entry point for a Shep service; defaults to mDNS at shep.local."""
+    """Entry point for a Shep service; defaults to mDNS at shep.local.
 
-    def __init__(self, host: str = "shep.local", port: int = 8080, timeout: float = 5.0) -> None:
+    The default host can be overridden without code changes by setting the
+    SHEP_HOST environment variable (useful before shep.local resolves, e.g.
+    running against a service by IP during development).
+    """
+
+    def __init__(self, host: Optional[str] = None, port: int = 8080, timeout: float = 5.0) -> None:
+        host = host or os.getenv("SHEP_HOST", "shep.local")
         if "://" in host:
             self.base_url = host.rstrip("/")
         else:
