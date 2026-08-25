@@ -60,18 +60,29 @@ class SlamClient:
     def start_mapping(self, slam_type: str = "indoor") -> Dict[str, Any]:
         return self.command("start_mapping", {"slam_type": slam_type})
 
-    def end_mapping(self, address: str) -> Dict[str, Any]:
-        return self.command("end_mapping", {"address": address})
+    def list_maps(self) -> Dict[str, Any]:
+        """The fixed 10 named map-save slots and which are already used —
+        pick one of maps()["slots"] rather than an arbitrary path."""
+        return self._transport.request("GET", "api/v1/slam/maps")
+
+    def end_mapping(self, name: Optional[str] = None, address: Optional[str] = None) -> Dict[str, Any]:
+        """Pass name (one of list_maps()["slots"]) for the common case; shep
+        resolves the actual path. address is the escape hatch for a
+        freeform path shep doesn't manage as a slot."""
+        if not name and not address:
+            raise ValueError("end_mapping needs name or address")
+        return self.command("end_mapping", {"name": name} if name else {"address": address})
 
     def start_relocation(
-        self, address: str,
+        self, name: Optional[str] = None, address: Optional[str] = None,
         x: float = 0.0, y: float = 0.0, z: float = 0.0,
         q_x: float = 0.0, q_y: float = 0.0, q_z: float = 0.0, q_w: float = 1.0,
     ) -> Dict[str, Any]:
-        return self.command("start_relocation", {
-            "address": address, "x": x, "y": y, "z": z,
-            "q_x": q_x, "q_y": q_y, "q_z": q_z, "q_w": q_w,
-        })
+        if not name and not address:
+            raise ValueError("start_relocation needs name or address")
+        params = {"x": x, "y": y, "z": z, "q_x": q_x, "q_y": q_y, "q_z": q_z, "q_w": q_w}
+        params.update({"name": name} if name else {"address": address})
+        return self.command("start_relocation", params)
 
     def pose_nav(
         self, x: float, y: float, z: float = 0.0,
@@ -96,6 +107,24 @@ class SlamClient:
 
     def stop(self) -> Dict[str, Any]:
         return self.command("stop")
+
+    def record_waypoint(self, name: str) -> Dict[str, Any]:
+        """Capture the robot's current live SLAM pose under name — a button
+        press, not typed x/y. Raises if no SLAM pose is available yet
+        (telemetry()["slam"]["pose"] must have been published at least
+        once)."""
+        return self._transport.request("POST", "api/v1/slam/waypoints", {"name": name})
+
+    def list_waypoints(self) -> Dict[str, Any]:
+        return self._transport.request("GET", "api/v1/slam/waypoints")["waypoints"]
+
+    def delete_waypoint(self, name: str) -> Dict[str, Any]:
+        return self._transport.request("DELETE", "api/v1/slam/waypoints/%s" % name)
+
+    def goto_waypoint(self, name: str) -> Dict[str, Any]:
+        """pose_nav to a previously recorded waypoint. Same fire-and-forget
+        semantics as pose_nav() — poll telemetry for arrival."""
+        return self._transport.request("POST", "api/v1/slam/nav/goto/%s" % name)
 
 
 class CameraClient:

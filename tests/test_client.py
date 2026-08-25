@@ -54,6 +54,41 @@ class ClientTests(unittest.TestCase):
         self.assertEqual(body["y"], 2.0)
         self.assertNotIn("targetPose", body)
 
+    @patch("shepherd_sdk.transport.urlopen")
+    def test_end_mapping_by_slot_name(self, urlopen):
+        urlopen.return_value = FakeResponse({"ok": True})
+        self.client.slam.end_mapping(name="map3")
+        request = urlopen.call_args.args[0]
+        self.assertEqual(request.full_url, "http://127.0.0.1:8080/api/v1/slam/end_mapping")
+        self.assertEqual(json.loads(request.data), {"name": "map3"})
+
+    @patch("shepherd_sdk.transport.urlopen")
+    def test_end_mapping_by_address_still_works(self, urlopen):
+        urlopen.return_value = FakeResponse({"ok": True})
+        self.client.slam.end_mapping(address="/custom/path.pcd")
+        request = urlopen.call_args.args[0]
+        self.assertEqual(json.loads(request.data), {"address": "/custom/path.pcd"})
+
+    def test_end_mapping_requires_name_or_address(self):
+        with self.assertRaises(ValueError):
+            self.client.slam.end_mapping()
+
+    @patch("shepherd_sdk.transport.urlopen")
+    def test_goto_waypoint(self, urlopen):
+        urlopen.return_value = FakeResponse({"ok": True})
+        self.client.slam.goto_waypoint("loading_zone")
+        request = urlopen.call_args.args[0]
+        self.assertEqual(request.full_url, "http://127.0.0.1:8080/api/v1/slam/nav/goto/loading_zone")
+        self.assertEqual(request.method, "POST")
+
+    @patch("shepherd_sdk.transport.urlopen")
+    def test_record_waypoint(self, urlopen):
+        urlopen.return_value = FakeResponse({"ok": True})
+        self.client.slam.record_waypoint("loading_zone")
+        request = urlopen.call_args.args[0]
+        self.assertEqual(request.full_url, "http://127.0.0.1:8080/api/v1/slam/waypoints")
+        self.assertEqual(json.loads(request.data), {"name": "loading_zone"})
+
 
 if __name__ == "__main__":
     unittest.main()
