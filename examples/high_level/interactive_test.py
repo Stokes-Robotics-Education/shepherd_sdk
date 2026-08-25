@@ -34,16 +34,20 @@ option_list = [
     TestOption(name="recovery_stand", id=6),
     TestOption(name="hello", id=7),
     TestOption(name="stretch", id=8),
-    TestOption(name="move forward", id=9),
-    TestOption(name="move lateral", id=10),
-    TestOption(name="move rotate", id=11),
-    TestOption(name="stop_move", id=12),
-    TestOption(name="deadman check", id=13),
-    TestOption(name="telemetry snapshot", id=14),
-    TestOption(name="telemetry stream", id=15),
-    TestOption(name="camera snapshot", id=16),
-    TestOption(name="estop", id=17),
-    TestOption(name="estop reset", id=18),
+    TestOption(name="sit", id=9),
+    TestOption(name="content", id=10),
+    TestOption(name="dance1", id=11),
+    TestOption(name="dance2", id=12),
+    TestOption(name="move forward", id=13),
+    TestOption(name="move lateral", id=14),
+    TestOption(name="move rotate", id=15),
+    TestOption(name="stop_move", id=16),
+    TestOption(name="deadman check", id=17),
+    TestOption(name="telemetry snapshot", id=18),
+    TestOption(name="telemetry stream", id=19),
+    TestOption(name="camera snapshot", id=20),
+    TestOption(name="estop", id=21),
+    TestOption(name="estop reset", id=22),
 ]
 
 
@@ -91,41 +95,50 @@ if __name__ == "__main__":
         user_interface.terminal_handle()
         print(f"Updated Test Option: Name = {test_option.name}, ID = {test_option.id}\n")
 
-        if test_option.id == 0:
+        name = test_option.name
+        if name == "health":
             pprint(robot.health())
-        elif test_option.id == 1:
+        elif name == "capabilities":
             pprint(robot.capabilities())
-        elif test_option.id == 2:
+        elif name == "stand_up":
             pprint(robot.sport.stand_up())
-        elif test_option.id == 3:
+        elif name == "stand_down":
             pprint(robot.sport.stand_down())
-        elif test_option.id == 4:
+        elif name == "rise_sit":
             pprint(robot.sport.rise_sit())
-        elif test_option.id == 5:
+        elif name == "balance_stand":
             pprint(robot.sport.balance_stand())
-        elif test_option.id == 6:
+        elif name == "recovery_stand":
             pprint(robot.sport.recovery_stand())
-        elif test_option.id == 7:
+        elif name == "hello":
             pprint(robot.sport.action("hello"))
-        elif test_option.id == 8:
+        elif name == "stretch":
             pprint(robot.sport.action("stretch"))
-        elif test_option.id == 9:
+        elif name == "sit":
+            pprint(robot.sport.sit())
+        elif name == "content":
+            pprint(robot.sport.action("content"))
+        elif name == "dance1":
+            pprint(robot.sport.action("dance1"))
+        elif name == "dance2":
+            pprint(robot.sport.action("dance2"))
+        elif name == "move forward":
             pprint(robot.sport.move(vx=0.3))
-        elif test_option.id == 10:
+        elif name == "move lateral":
             pprint(robot.sport.move(vx=0, vy=0.3))
-        elif test_option.id == 11:
+        elif name == "move rotate":
             pprint(robot.sport.move(vx=0, vy=0, vyaw=0.5))
-        elif test_option.id == 12:
+        elif name == "stop_move":
             pprint(robot.sport.stop())
-        elif test_option.id == 13:
+        elif name == "deadman check":
             print("Sending one move() and then doing nothing for 2s.")
             print("Robot should stop on its own within ~500ms (shep's dead-man timeout).")
             pprint(robot.sport.move(vx=0.2))
             time.sleep(2)
             print("Check the robot now — it should already be stopped.")
-        elif test_option.id == 14:
+        elif name == "telemetry snapshot":
             pprint(robot.telemetry.get())
-        elif test_option.id == 15:
+        elif name == "telemetry stream":
             print("Streaming telemetry for 5 updates (Ctrl+C to stop early)...")
             count = 0
             for state in robot.telemetry.stream():
@@ -134,13 +147,13 @@ if __name__ == "__main__":
                 count += 1
                 if count >= 5:
                     break
-        elif test_option.id == 16:
+        elif name == "camera snapshot":
             path = robot.camera.save_snapshot("snapshot.jpg")
             print("Saved", path)
-        elif test_option.id == 17:
+        elif name == "estop":
             pprint(robot.emergency_stop())
             print("E-stop is latched. Use 'estop reset' before further motion/posture commands.")
-        elif test_option.id == 18:
+        elif name == "estop reset":
             pprint(robot.reset_emergency_stop())
 
         time.sleep(1)

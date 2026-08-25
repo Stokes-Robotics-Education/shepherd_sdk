@@ -38,6 +38,9 @@ class SportClient:
     def balance_stand(self) -> Dict[str, Any]:
         return self.action("balance_stand")
 
+    def sit(self) -> Dict[str, Any]:
+        return self.action("sit")
+
 
 class CameraClient:
     def __init__(self, transport: HttpTransport, base_url: str) -> None:
