@@ -21,16 +21,31 @@ robot.sport.stop()
 
 Velocity commands are intentionally ephemeral: refresh them at least every
 200–250 ms or Shep's dead-man watchdog stops the robot. Always use `try/finally`
-around sustained motion, as shown in `examples/high_level.py`.
+around sustained motion, as shown in `examples/high_level/movement.py`.
 
 Live WebSocket telemetry is the sole optional SDK dependency:
 
 ```bash
 python3 -m pip install -e '.[telemetry]'
-python3 examples/telemetry.py
+python3 examples/telemetry/stream.py
 ```
 
-Examples cover health/capability discovery, high-level motion, camera snapshots,
-live telemetry, e-stop, and an optional YOLO person-centering demonstration. The
-AI example's model stack is intentionally separate from the core SDK.
+## Examples
+
+Layered by capability, the same way as Unitree's own SDK examples
+(`unitree_sdk2_python/example/go2/{front_camera,high_level}/`) — one folder
+per subsystem. There is no `low_level/` folder: Shep intentionally exposes
+only the high-level sport API, not raw joint control.
+
+| Folder | Contents |
+|---|---|
+| `core/` | `health.py` — service/robot health and capability discovery |
+| `high_level/` | `movement.py` (stand + short walk + stop), `emergency_stop.py`, `interactive_test.py` (menu-driven manual test of every action, styled after `go2_sport_client.py`) |
+| `front_camera/` | `snapshot.py` (save one JPEG), `live_view.py` (optional, OpenCV window over the MJPEG stream) |
+| `telemetry/` | `stream.py` — live WebSocket telemetry |
+| `ai/` | `person_follow.py` — optional YOLO person-centering demo |
+
+`front_camera/live_view.py` and `ai/person_follow.py` need OpenCV/NumPy (and
+Ultralytics for the AI example) installed separately — deliberately not core
+SDK dependencies.
 
