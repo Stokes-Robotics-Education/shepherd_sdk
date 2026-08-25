@@ -7,7 +7,10 @@ velocity command, so it isn't subject to shep's dead-man timeout. This
 polls telemetry for arrival instead of the sport.move()/refresh pattern.
 
 Usage:
-    .venv/bin/python examples/slam/navigate.py [host] [map_path] [x] [y]
+    .venv/bin/python examples/slam/navigate.py [host] [map_slot] [x] [y]
+
+    map_slot is one of the 10 fixed save slots (robot.slam.list_maps()
+    ["slots"], e.g. "map1"), the same one used with mapping.py.
 """
 import sys
 import time
@@ -16,14 +19,14 @@ from shepherd_sdk import Shepherd
 
 
 def main() -> None:
-    map_path = sys.argv[2] if len(sys.argv) > 2 else "/home/unitree/map.pcd"
+    slot = sys.argv[2] if len(sys.argv) > 2 else "map1"
     x = float(sys.argv[3]) if len(sys.argv) > 3 else 1.0
     y = float(sys.argv[4]) if len(sys.argv) > 4 else 0.0
     robot = Shepherd(sys.argv[1]) if len(sys.argv) > 1 else Shepherd()
 
     print("WARNING: ensure the robot is at the map's recorded origin pose before relocating.")
     input("Press Enter to relocalize...")
-    print(robot.slam.start_relocation(map_path))
+    print(robot.slam.start_relocation(name=slot))
 
     input(f"Press Enter to send the robot to (x={x}, y={y})...")
     print(robot.slam.pose_nav(x=x, y=y))

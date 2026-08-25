@@ -47,15 +47,20 @@ option_list = [
     TestOption(name="telemetry stream", id=19),
     TestOption(name="faults", id=20),
     TestOption(name="camera snapshot", id=21),
-    TestOption(name="start_mapping", id=22),
-    TestOption(name="end_mapping", id=23),
-    TestOption(name="start_relocation", id=24),
-    TestOption(name="pose_nav", id=25),
-    TestOption(name="pause_nav", id=26),
-    TestOption(name="resume_nav", id=27),
-    TestOption(name="slam stop", id=28),
-    TestOption(name="estop", id=29),
-    TestOption(name="estop reset", id=30),
+    TestOption(name="list_maps", id=22),
+    TestOption(name="start_mapping", id=23),
+    TestOption(name="end_mapping", id=24),
+    TestOption(name="start_relocation", id=25),
+    TestOption(name="record_waypoint", id=26),
+    TestOption(name="list_waypoints", id=27),
+    TestOption(name="goto_waypoint", id=28),
+    TestOption(name="delete_waypoint", id=29),
+    TestOption(name="pose_nav", id=30),
+    TestOption(name="pause_nav", id=31),
+    TestOption(name="resume_nav", id=32),
+    TestOption(name="slam stop", id=33),
+    TestOption(name="estop", id=34),
+    TestOption(name="estop reset", id=35),
 ]
 
 
@@ -161,14 +166,31 @@ if __name__ == "__main__":
         elif name == "camera snapshot":
             path = robot.camera.save_snapshot("snapshot.jpg")
             print("Saved", path)
+        elif name == "list_maps":
+            pprint(robot.slam.list_maps())
         elif name == "start_mapping":
             pprint(robot.slam.start_mapping())
         elif name == "end_mapping":
-            address = input("Save path [/home/unitree/map.pcd]: ") or "/home/unitree/map.pcd"
-            pprint(robot.slam.end_mapping(address))
+            maps = robot.slam.list_maps()
+            print("Slots:", ", ".join("%s%s" % (s, " (used)" if maps["used"].get(s) else "") for s in maps["slots"]))
+            slot = input("Save to slot: ").strip()
+            pprint(robot.slam.end_mapping(name=slot))
         elif name == "start_relocation":
-            address = input("Map path [/home/unitree/map.pcd]: ") or "/home/unitree/map.pcd"
-            pprint(robot.slam.start_relocation(address))
+            maps = robot.slam.list_maps()
+            print("Slots:", ", ".join("%s%s" % (s, " (used)" if maps["used"].get(s) else "") for s in maps["slots"]))
+            slot = input("Relocate against slot: ").strip()
+            pprint(robot.slam.start_relocation(name=slot))
+        elif name == "record_waypoint":
+            wp_name = input("Waypoint name: ").strip()
+            pprint(robot.slam.record_waypoint(wp_name))
+        elif name == "list_waypoints":
+            pprint(robot.slam.list_waypoints())
+        elif name == "goto_waypoint":
+            wp_name = input("Waypoint name: ").strip()
+            pprint(robot.slam.goto_waypoint(wp_name))
+        elif name == "delete_waypoint":
+            wp_name = input("Waypoint name: ").strip()
+            pprint(robot.slam.delete_waypoint(wp_name))
         elif name == "pose_nav":
             x = float(input("Target x: ") or 0)
             y = float(input("Target y: ") or 0)
