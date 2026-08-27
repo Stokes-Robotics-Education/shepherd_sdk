@@ -29,10 +29,13 @@ Velocity commands are intentionally ephemeral: refresh them at least every
 200–250 ms or Shep's dead-man watchdog stops the robot. Always use `try/finally`
 around sustained motion, as shown in `examples/high_level/movement.py`.
 
-Live WebSocket telemetry is the sole optional SDK dependency:
+The base install (above) is everything the SDK itself needs — zero runtime
+dependencies. Some examples need more (live WebSocket telemetry, camera
+OpenCV windows, the YOLO demo); install everything at once instead of
+picking dependencies apart per example:
 
 ```bash
-python3 -m pip install -e '.[telemetry]'
+.venv/bin/pip install -e '.[all]'
 python3 examples/telemetry/stream.py
 ```
 
@@ -89,12 +92,6 @@ only the high-level sport API, not raw joint control.
 | `ai/` | `person_follow.py` — optional YOLO person-centering demo |
 
 `front_camera/live_view.py` and `ai/person_follow.py` need OpenCV/NumPy (and
-Ultralytics for the AI example) — deliberately not core SDK dependencies, so
-they're their own install extras instead:
-
-```bash
-.venv/bin/pip install -e '.[camera]'   # live_view.py
-.venv/bin/pip install -e '.[ai]'       # person_follow.py (includes camera's deps too)
-.venv/bin/pip install -e '.[telemetry,camera,ai]'   # everything, every example runnable
-```
+Ultralytics for the AI example) — deliberately not core SDK dependencies,
+covered by `pip install -e '.[all]'` above.
 
