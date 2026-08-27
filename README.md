@@ -89,6 +89,12 @@ only the high-level sport API, not raw joint control.
 | `ai/` | `person_follow.py` — optional YOLO person-centering demo |
 
 `front_camera/live_view.py` and `ai/person_follow.py` need OpenCV/NumPy (and
-Ultralytics for the AI example) installed separately — deliberately not core
-SDK dependencies.
+Ultralytics for the AI example) — deliberately not core SDK dependencies, so
+they're their own install extras instead:
+
+```bash
+.venv/bin/pip install -e '.[camera]'   # live_view.py
+.venv/bin/pip install -e '.[ai]'       # person_follow.py (includes camera's deps too)
+.venv/bin/pip install -e '.[telemetry,camera,ai]'   # everything, every example runnable
+```
 
