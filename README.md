@@ -36,7 +36,7 @@ picking dependencies apart per example:
 
 ```bash
 .venv/bin/pip install -e '.[all]'
-python3 examples/telemetry/stream.py
+.venv/bin/python3 examples/telemetry/stream.py
 ```
 
 To uninstall:
@@ -65,13 +65,17 @@ ignore or delete by hand.)
 
 ## Examples
 
-Every example takes the Shep host as an optional first positional argument,
-the same convention as Unitree's own examples taking a network interface
+No need to activate the venv — run examples with its own interpreter
+directly, same as the install commands above (`.venv/bin/python3`, not
+plain `python3`; if you do prefer activating, `source .venv/bin/activate`
+first and then plain `python3` works too). Every example takes the Shep
+host as an optional first positional argument, the same convention as
+Unitree's own examples taking a network interface
 (`python3 go2_sport_client.py eth0`):
 
 ```bash
-python3 examples/core/health.py                # shep.local, or $SHEP_HOST if set
-python3 examples/core/health.py 192.168.4.74    # explicit host/IP
+.venv/bin/python3 examples/core/health.py                # shep.local, or $SHEP_HOST if set
+.venv/bin/python3 examples/core/health.py 192.168.4.74    # explicit host/IP
 ```
 
 `front_camera/live_view.py` additionally takes a camera source as a second
