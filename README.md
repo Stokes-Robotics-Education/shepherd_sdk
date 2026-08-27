@@ -5,24 +5,31 @@ health, and telemetry snapshots use only the Python standard library.
 
 ```bash
 python3 -m venv .venv
-.venv/bin/pip install -e .
 ```
 
-That's it — no activation needed. Every example script auto-detects
-whether the interpreter running it can see `shepherd_sdk`; if not, it
-looks for a `.venv/` next to the project and transparently relaunches
-itself under that venv's own Python. So plain `python3 your_script.py`
-just works, with your Python still fully isolated from the system one —
-the auto-relaunch only ever happens once, right at the start, then the
-rest of the script runs normally.
+Then activate it — the command depends on your OS/shell (this SDK targets
+Linux, Windows, and macOS alike):
 
-(You can still `source .venv/bin/activate` if you prefer that habit — it
-just becomes optional rather than required. Genuinely stuck with a
-`ModuleNotFoundError: No module named 'shepherd_sdk'`? That means no
-`.venv/` was found near the script at all — check the install step above
-actually ran in this project's directory. Writing your own script instead
-of starting from one of the examples? Copy the same auto-relaunch snippet
-from the top of any `examples/*/*.py` file to get this for free there too.)
+| Platform | Command |
+|---|---|
+| Linux / macOS | `source .venv/bin/activate` |
+| Windows (cmd.exe) | `.venv\Scripts\activate.bat` |
+| Windows (PowerShell) | `.venv\Scripts\Activate.ps1` |
+
+Do this once per terminal session (any time you open a new terminal to
+work on this, activate again first). Once activated, install with plain
+`pip` — no path prefix needed, and it stays isolated from your system
+Python:
+
+```bash
+pip install -e .
+```
+
+From here, plain `python3 your_script.py` (or `python your_script.py` on
+Windows, if that's what resolves for you there — check with
+`python3 --version` / `python --version`) just works for the rest of that
+terminal session. Forgot to activate? `ModuleNotFoundError: No module
+named 'shepherd_sdk'` is the tell — activate and try again.
 
 `shep.local:8080` is the default, so the usual case is concise:
 
@@ -46,14 +53,14 @@ OpenCV windows, the YOLO demo); install everything at once instead of
 picking dependencies apart per example:
 
 ```bash
-.venv/bin/pip install -e '.[all]'
+pip install -e '.[all]'
 python3 examples/telemetry/stream.py
 ```
 
-To uninstall:
+To uninstall (with the venv activated):
 
 ```bash
-.venv/bin/pip uninstall shepherd-sdk
+pip uninstall shepherd-sdk
 ```
 
 (`shepherd-sdk` or `shepherd_sdk` both work — pip treats the hyphen and
@@ -85,7 +92,8 @@ python3 examples/core/health.py                # shep.local, or $SHEP_HOST if se
 python3 examples/core/health.py 192.168.4.74    # explicit host/IP
 ```
 
-No activation needed here either — see Install above.
+(Remember to activate the venv first if it's a new terminal session —
+see Install above.)
 
 `front_camera/live_view.py` additionally takes a camera source as a second
 argument (default `front`).
