@@ -3,33 +3,111 @@
 A lightweight Python 3.8+ client for a `shep` service. HTTP control, snapshots,
 health, and telemetry snapshots use only the Python standard library.
 
+## Setup
+
+Full instructions below, one section per OS — system packages first, then
+the SDK itself. (Already have Python 3.8+, pip, and venv working? The
+short version is the same everywhere: `python3 -m venv .venv`, activate
+it, `pip install -e .`.)
+
+Once activated, `source .venv/bin/activate` (or the Windows equivalents
+below) is a one-time thing per terminal session — do it again any time you
+open a new terminal to work on this. After that, plain `python3
+your_script.py` (or `python your_script.py` on Windows — check
+`python3 --version` / `python --version` to see which resolves for you)
+and plain `pip` both just work, isolated from your system Python. Forgot
+to activate? `ModuleNotFoundError: No module named 'shepherd_sdk'` is the
+tell.
+
+### Linux (Debian/Ubuntu-based — including the Jetson dock's own OS)
+
 ```bash
-python3 -m venv .venv
+sudo apt-get update
+sudo apt-get install -y python3 python3-venv python3-pip git
 ```
 
-Then activate it — the command depends on your OS/shell (this SDK targets
-Linux, Windows, and macOS alike):
-
-| Platform | Command |
-|---|---|
-| Linux / macOS | `source .venv/bin/activate` |
-| Windows (cmd.exe) | `.venv\Scripts\activate.bat` |
-| Windows (PowerShell) | `.venv\Scripts\Activate.ps1` |
-
-Do this once per terminal session (any time you open a new terminal to
-work on this, activate again first). Once activated, install with plain
-`pip` — no path prefix needed, and it stays isolated from your system
-Python:
+`python3-venv` matters specifically: on Debian/Ubuntu, the `venv` module
+is packaged *separately* from the base `python3` interpreter — skip it
+and `python3 -m venv .venv` fails with an "ensurepip is not available"
+error. (Same reason shep's own installer apt-get's it explicitly.)
 
 ```bash
+git clone https://github.com/Stokes-Robotics-Education/shepherd_sdk.git
+cd shepherd_sdk
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -e .
 ```
 
-From here, plain `python3 your_script.py` (or `python your_script.py` on
-Windows, if that's what resolves for you there — check with
-`python3 --version` / `python --version`) just works for the rest of that
-terminal session. Forgot to activate? `ModuleNotFoundError: No module
-named 'shepherd_sdk'` is the tell — activate and try again.
+Planning to run `front_camera/live_view.py` or `ai/person_follow.py` (the
+OpenCV/YOLO examples)? Two extra system libraries are commonly missing on
+minimal or headless installs (fresh VMs, WSL, Docker containers) — OpenCV
+needs them for window support even though it's installed via pip:
+
+```bash
+sudo apt-get install -y libgl1 libglib2.0-0
+pip install -e '.[all]'
+```
+
+(Ubuntu 20.04 or earlier: the package is named `libgl1-mesa-glx` instead
+of `libgl1`.)
+
+### macOS
+
+Python 3 doesn't ship with modern macOS by default — install it first,
+via either the [official installer](https://www.python.org/downloads/macos/)
+or Homebrew:
+
+```bash
+brew install python3 git   # or use the python.org installer instead
+```
+
+Then the same venv flow as Linux:
+
+```bash
+git clone https://github.com/Stokes-Robotics-Education/shepherd_sdk.git
+cd shepherd_sdk
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e .
+```
+
+No extra system libraries needed for `pip install -e '.[all]'` — OpenCV's
+macOS wheels (both Intel and Apple Silicon) are self-contained.
+
+### Windows
+
+Install Python from the [official installer](https://www.python.org/downloads/windows/)
+— **tick "Add python.exe to PATH"** during setup, or `python`/`pip` won't
+be found afterward. Install [Git for Windows](https://git-scm.com/download/win)
+too, if you don't already have it.
+
+PowerShell:
+
+```powershell
+git clone https://github.com/Stokes-Robotics-Education/shepherd_sdk.git
+cd shepherd_sdk
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -e .
+```
+
+cmd.exe: identical, except activate with `.venv\Scripts\activate.bat`
+instead of the `.ps1` script.
+
+(PowerShell refusing to run the activate script with a "running scripts
+is disabled on this system" error? Run
+`Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once, then retry —
+a default-Windows security setting, not anything specific to this SDK.)
+
+No extra system packages needed for `pip install -e '.[all]'` in the
+common case. If a wheel install ever falls back to compiling from source,
+installing the
+[Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+fixes it — but that shouldn't come up for opencv-python/numpy/ultralytics
+on a normal 64-bit Windows install.
+
+---
 
 `shep.local:8080` is the default, so the usual case is concise:
 
@@ -49,11 +127,11 @@ around sustained motion, as shown in `examples/high_level/movement.py`.
 
 The base install (above) is everything the SDK itself needs — zero runtime
 dependencies. Some examples need more (live WebSocket telemetry, camera
-OpenCV windows, the YOLO demo); install everything at once instead of
+OpenCV windows, the YOLO demo) — `pip install -e '.[all]'` (see Setup
+above for OS-specific notes) installs everything at once instead of
 picking dependencies apart per example:
 
 ```bash
-pip install -e '.[all]'
 python3 examples/telemetry/stream.py
 ```
 
@@ -93,7 +171,7 @@ python3 examples/core/health.py 192.168.4.74    # explicit host/IP
 ```
 
 (Remember to activate the venv first if it's a new terminal session —
-see Install above.)
+see Setup above.)
 
 `front_camera/live_view.py` additionally takes a camera source as a second
 argument (default `front`).
