@@ -1,11 +1,11 @@
 """Optional example: follow a detected person using plain high-level
-motion — walk toward them at a fixed speed, turning to keep them centered
-left/right in frame (stopping once they're close enough not to walk into)
-— with a live annotated view so you can see what the model sees while
-it's driving the robot. A 640px-wide window shows a bounding box around
-every person YOLO finds (green for the one being followed, the closest
-match to center; yellow for anyone else in frame), a center line marking
-the yaw target, and the velocity command each frame is actually sending.
+motion — walk toward them, slowing smoothly as they get close, while
+turning to keep them centered left/right in frame — with a live annotated
+view so you can see what the model sees while it's driving the robot. A
+640px-wide window shows a bounding box around every person YOLO finds
+(green for the one being followed, the closest match to center; yellow
+for anyone else in frame), a center line marking the yaw target, and the
+velocity command each frame is actually sending.
 
 Needs OpenCV, NumPy, and Ultralytics — deliberately not core SDK dependencies,
 so install with the "all" extra: pip install -e '.[all]'. Start with the Go2
@@ -27,16 +27,19 @@ from ultralytics import YOLO
 from shepherd_sdk import Shepherd
 
 DISPLAY_WIDTH = 640
-FORWARD_VX = 0.5   # m/s — a fixed walking speed, not distance-proportional
-MAX_VYAW = 3.0     # rad/s turn cap — shep's own server-side max_vyaw
-                   # (1.5 rad/s by default) is the real final ceiling on
-                   # what the robot actually does; this is just the request.
+FORWARD_VX = 0.5   # m/s — the *peak* forward speed, not a fixed constant one
+MAX_VYAW = 3.0     # rad/s — same idea, the peak turn rate. shep's own
+                   # server-side max_vyaw (1.5 rad/s by default) is the
+                   # real final ceiling on what the robot actually does;
+                   # this is just the request.
 
-# There's no depth sensing here (plain monocular camera), so this is just a
-# basic safety cutoff, not a distance estimate: once the person's bounding
-# box fills most of the frame height they're right in front of the robot —
-# stop advancing rather than walk into them. Below this, always approach at
-# the same FORWARD_VX regardless of how far away they are.
+# There's no depth sensing here (plain monocular camera), so this is a
+# relative stand-in for distance, not a real one: the person's bounding-box
+# height relative to the frame. A fixed speed all the way up to a hard stop
+# would mean walking at full FORWARD_VX right up until the cutoff, then an
+# abrupt halt — this instead tapers vx linearly from FORWARD_VX down to 0
+# as box_height_ratio climbs from 0 (as far away as it gets) to this value
+# (close enough to stop advancing), so it actually slows down on approach.
 STOP_BOX_HEIGHT_RATIO = 0.6
 
 
@@ -51,20 +54,22 @@ def resize_to_display(frame):
 
 
 def command_for(box, frame_width: int, frame_height: int):
-    """(vx, vyaw) from plain high-level motion — a fixed forward speed plus
-    proportional yaw — to walk toward `box` while keeping it centered
-    left/right: the goal is simply the box's horizontal center (not the
-    box's vertical position, not the frame's exact center *point* — just
-    left/right) landing on the frame's horizontal center. Pure function of
-    the box + frame size so it's easy to unit test independent of the
-    camera/model/robot."""
+    """(vx, vyaw) from plain high-level motion, both proportional (relative
+    to how far off-target the box is) rather than fixed constants — walk
+    toward `box`, slowing as it gets close, while turning to keep it
+    centered left/right: the goal is simply the box's horizontal center
+    (not the box's vertical position, not the frame's exact center *point*
+    — just left/right) landing on the frame's horizontal center. Pure
+    function of the box + frame size so it's easy to unit test independent
+    of the camera/model/robot."""
     x1, y1, x2, y2 = box.xyxy[0].tolist()
 
     yaw_error = ((x1 + x2) / 2 - frame_width / 2) / (frame_width / 2)  # -1..1
     vyaw = max(-MAX_VYAW, min(MAX_VYAW, -yaw_error * MAX_VYAW))
 
-    box_height_ratio = (y2 - y1) / frame_height
-    vx = 0.0 if box_height_ratio >= STOP_BOX_HEIGHT_RATIO else FORWARD_VX
+    box_height_ratio = (y2 - y1) / frame_height  # 0 (far) .. 1 (fills the frame)
+    approach_headroom = max(0.0, 1.0 - box_height_ratio / STOP_BOX_HEIGHT_RATIO)  # 1 (far) .. 0 (at the stop distance)
+    vx = FORWARD_VX * approach_headroom
 
     return vx, vyaw
 
