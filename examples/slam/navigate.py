@@ -7,7 +7,7 @@ velocity command, so it isn't subject to shep's dead-man timeout. This
 polls telemetry for arrival instead of the sport.move()/refresh pattern.
 
 Usage:
-    .venv/bin/python examples/slam/navigate.py [host] [map_slot] [x] [y]
+    python3 examples/slam/navigate.py [host] [map_slot] [x] [y]
 
     map_slot is one of the 10 fixed save slots (robot.slam.list_maps()
     ["slots"], e.g. "map1"), the same one used with mapping.py.

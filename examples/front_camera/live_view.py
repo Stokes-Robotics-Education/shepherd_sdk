@@ -8,7 +8,7 @@ Install OpenCV and NumPy separately. They are deliberately not SDK
 dependencies.
 
 Usage:
-    .venv/bin/python examples/front_camera/live_view.py [host] [source]
+    python3 examples/front_camera/live_view.py [host] [source]
 
     host defaults to shep.local (or $SHEP_HOST if set); source defaults
     to "front".

@@ -4,7 +4,7 @@ against the target map (record_waypoint via interactive_test.py, or your
 own script) and the SLAM service running.
 
 Usage:
-    .venv/bin/python examples/slam/route_planner.py [host] [map_slot]
+    python3 examples/slam/route_planner.py [host] [map_slot]
 
     map_slot is one of the 10 fixed save slots — the same one your
     waypoints were recorded against. Defaults to "map1".

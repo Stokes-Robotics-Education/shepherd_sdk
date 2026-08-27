@@ -3,11 +3,11 @@ go2_sport_client.py example (same pick-a-number-and-go workflow), but
 driving the robot through Shep's HTTP/WebSocket API instead of raw DDS.
 
 Usage:
-    .venv/bin/python examples/high_level/interactive_test.py [host]
+    python3 examples/high_level/interactive_test.py [host]
 
     host defaults to shep.local (or $SHEP_HOST if set). Pass an IP or
     hostname to override, e.g.:
-    .venv/bin/python examples/high_level/interactive_test.py 192.168.4.74
+    python3 examples/high_level/interactive_test.py 192.168.4.74
 """
 
 import sys

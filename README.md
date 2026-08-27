@@ -5,13 +5,17 @@ health, and telemetry snapshots use only the Python standard library.
 
 ```bash
 python3 -m venv .venv
-.venv/bin/pip install -e .
+source .venv/bin/activate
+pip install -e .
 ```
 
-(A venv isn't required — `pip install -e .` just installs into whatever
-Python environment is active when you run it — but skipping it means
-installing into your system or user Python instead of somewhere
-self-contained.)
+`source .venv/bin/activate` is a one-time thing per terminal session (run
+it again any time you open a new terminal to work on this) — after that,
+plain `python3 your_script.py` and plain `pip` both just work, no
+`.venv/bin/` prefix needed, while still keeping everything isolated from
+your system Python. (Forgot to activate? `python3 your_script.py` will
+fail with `ModuleNotFoundError: No module named 'shepherd_sdk'` — that's
+the tell.)
 
 `shep.local:8080` is the default, so the usual case is concise:
 
@@ -35,22 +39,22 @@ OpenCV windows, the YOLO demo); install everything at once instead of
 picking dependencies apart per example:
 
 ```bash
-.venv/bin/pip install -e '.[all]'
-.venv/bin/python3 examples/telemetry/stream.py
+pip install -e '.[all]'
+python3 examples/telemetry/stream.py
 ```
 
 To uninstall:
 
 ```bash
-.venv/bin/pip uninstall shepherd-sdk
+pip uninstall shepherd-sdk
 ```
 
 (`shepherd-sdk` or `shepherd_sdk` both work — pip treats the hyphen and
-underscore as equivalent. If you installed with the venv above, deleting
-the whole `.venv/` directory works too. Either way, the source tree's own
-`src/shepherd_sdk.egg-info/` build-metadata directory is harmless leftover,
-not something uninstall needs to clean up — it's gitignored and safe to
-ignore or delete by hand.)
+underscore as equivalent. Deleting the whole `.venv/` directory works too,
+and if you're not sure the package is really gone, that's the surest way.
+The source tree's own `src/shepherd_sdk.egg-info/` build-metadata
+directory is harmless leftover either way — it's gitignored and not
+something uninstall needs to clean up.)
 
 ## Capabilities
 
@@ -65,18 +69,17 @@ ignore or delete by hand.)
 
 ## Examples
 
-No need to activate the venv — run examples with its own interpreter
-directly, same as the install commands above (`.venv/bin/python3`, not
-plain `python3`; if you do prefer activating, `source .venv/bin/activate`
-first and then plain `python3` works too). Every example takes the Shep
-host as an optional first positional argument, the same convention as
-Unitree's own examples taking a network interface
+Every example takes the Shep host as an optional first positional argument,
+the same convention as Unitree's own examples taking a network interface
 (`python3 go2_sport_client.py eth0`):
 
 ```bash
-.venv/bin/python3 examples/core/health.py                # shep.local, or $SHEP_HOST if set
-.venv/bin/python3 examples/core/health.py 192.168.4.74    # explicit host/IP
+python3 examples/core/health.py                # shep.local, or $SHEP_HOST if set
+python3 examples/core/health.py 192.168.4.74    # explicit host/IP
 ```
+
+(Remember to `source .venv/bin/activate` first if it's a new terminal
+session — see Install above.)
 
 `front_camera/live_view.py` additionally takes a camera source as a second
 argument (default `front`).

@@ -8,7 +8,7 @@ https://support.unitree.com/home/en/developer/Fault_service:
 values rather than decoding individual bits.
 
 Usage:
-    .venv/bin/python examples/telemetry/faults.py [host]
+    python3 examples/telemetry/faults.py [host]
 """
 import sys
 

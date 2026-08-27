@@ -4,7 +4,7 @@ needs root on the robot side, so shep may ask for a sudo password — this
 handles that handshake with getpass rather than a hardcoded password.
 
 Usage:
-    .venv/bin/python examples/slam/service.py [host] [status|start|stop]
+    python3 examples/slam/service.py [host] [status|start|stop]
 
     Defaults to "status". host defaults to shep.local (or $SHEP_HOST if set).
 """

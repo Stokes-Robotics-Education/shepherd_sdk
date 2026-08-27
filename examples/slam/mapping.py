@@ -6,7 +6,7 @@ robot around (physical controller or shepherd_sdk.sport.move) between start
 and end; this script only brackets the mapping session.
 
 Usage:
-    .venv/bin/python examples/slam/mapping.py [host] [map_slot]
+    python3 examples/slam/mapping.py [host] [map_slot]
 
     map_slot is one of the 10 fixed save slots (robot.slam.list_maps()
     ["slots"], e.g. "map1"), not a freeform path — shep resolves the
