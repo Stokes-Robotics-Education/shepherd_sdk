@@ -188,7 +188,7 @@ only the high-level sport API, not raw joint control.
 | `front_camera/` | `snapshot.py` (save one JPEG), `live_view.py` (optional, OpenCV window over the MJPEG stream) |
 | `telemetry/` | `stream.py` — live WebSocket telemetry; `faults.py` — read the Fault Services diagnostic feed |
 | `slam/` | `mapping.py` (start/end a mapping session), `navigate.py` (relocalize + one nav goal), `service.py` (check/start/stop the SLAM service, handles the sudo-password handshake), `route_planner.py` (build a route from recorded waypoints, save it, run it) — all need the SLAM service actually running on the robot side |
-| `ai/` | `person_follow.py` — optional YOLO person-centering demo |
+| `ai/` | `person_follow.py` — optional YOLO person-following demo, with a live 640px-wide annotated view (bounding boxes, green for the person being followed) |
 
 `front_camera/live_view.py` and `ai/person_follow.py` need OpenCV/NumPy (and
 Ultralytics for the AI example) — deliberately not core SDK dependencies,
