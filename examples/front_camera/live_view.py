@@ -4,8 +4,8 @@ Mirrors Unitree's front_camera/camera_opencv.py (ESC to quit, 's' saves the
 current frame), but reads Shep's browser-compatible MJPEG endpoint instead of
 calling VideoClient directly.
 
-Install OpenCV and NumPy separately. They are deliberately not SDK
-dependencies.
+Needs OpenCV and NumPy — deliberately not core SDK dependencies, so
+install with the "all" extra: pip install -e '.[all]'.
 
 Usage:
     python3 examples/front_camera/live_view.py [host] [source]
@@ -14,7 +14,18 @@ Usage:
     to "front".
 """
 import sys
+from pathlib import Path
 from urllib.request import urlopen
+
+try:
+    import shepherd_sdk  # noqa: F401 -- just checking it's importable
+except ImportError:
+    import os
+    for _parent in Path(__file__).resolve().parents:
+        _venv_python = _parent / ".venv" / "bin" / "python3"
+        if _venv_python.exists():
+            os.execv(str(_venv_python), [str(_venv_python), *sys.argv])
+    raise  # no .venv/ found either -- let the real error surface below
 
 import cv2
 import numpy as np
