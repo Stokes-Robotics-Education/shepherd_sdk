@@ -30,6 +30,17 @@ python3 -m pip install -e '.[telemetry]'
 python3 examples/telemetry/stream.py
 ```
 
+## Capabilities
+
+| Client | Covers |
+|---|---|
+| `robot.sport` | Velocity/stop, and every high-level action — postures (`stand_up`, `sit`, ...), gestures (`hello`, `dance1`, ...), and gait-mode switches (`free_walk`, `trot_run`, ...) via named methods or `action(name)` |
+| `robot.slam` | Mapping/relocation/nav goals, the 10 named map-save slots (list/delete/render to PNG), waypoints (record/list/delete/goto), and the underlying SLAM service process (status/start/stop, with a `needs_password` handshake for the two process-management calls) |
+| `robot.route` | Multi-waypoint route queues — build/run/stop live, or save/load/list named routes (capped per map) |
+| `robot.camera` | Sources, snapshots, and an MJPEG stream URL |
+| `robot.telemetry` | One-shot state, or a live WebSocket stream/callback |
+| `robot` (top-level) | `health()`, `capabilities()`, `emergency_stop()`/`reset_emergency_stop()`, `obstacle_avoid()`/`set_obstacle_avoid()`, `vui_light()`/`set_vui_light()`, `low_battery()`, `restart_server()` |
+
 ## Examples
 
 Every example takes the Shep host as an optional first positional argument,
@@ -55,7 +66,7 @@ only the high-level sport API, not raw joint control.
 | `high_level/` | `movement.py` (stand + short walk + stop), `emergency_stop.py`, `interactive_test.py` (menu-driven manual test of every action, styled after `go2_sport_client.py`) |
 | `front_camera/` | `snapshot.py` (save one JPEG), `live_view.py` (optional, OpenCV window over the MJPEG stream) |
 | `telemetry/` | `stream.py` — live WebSocket telemetry; `faults.py` — read the Fault Services diagnostic feed |
-| `slam/` | `mapping.py` (start/end a mapping session), `navigate.py` (relocalize + one nav goal) — needs `shep`'s SLAM client available, see its README |
+| `slam/` | `mapping.py` (start/end a mapping session), `navigate.py` (relocalize + one nav goal), `service.py` (check/start/stop the SLAM service, handles the sudo-password handshake), `route_planner.py` (build a route from recorded waypoints, save it, run it) — all need the SLAM service actually running on the robot side |
 | `ai/` | `person_follow.py` — optional YOLO person-centering demo |
 
 `front_camera/live_view.py` and `ai/person_follow.py` need OpenCV/NumPy (and

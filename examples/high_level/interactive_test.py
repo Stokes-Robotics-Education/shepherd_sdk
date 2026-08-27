@@ -38,6 +38,10 @@ option_list = [
     TestOption(name="content", id=10),
     TestOption(name="dance1", id=11),
     TestOption(name="dance2", id=12),
+    TestOption(name="heart", id=36),
+    TestOption(name="free_walk", id=37),
+    TestOption(name="static_walk", id=38),
+    TestOption(name="trot_run", id=39),
     TestOption(name="move forward", id=13),
     TestOption(name="move lateral", id=14),
     TestOption(name="move rotate", id=15),
@@ -61,6 +65,13 @@ option_list = [
     TestOption(name="slam stop", id=33),
     TestOption(name="estop", id=34),
     TestOption(name="estop reset", id=35),
+    TestOption(name="delete_map", id=40),
+    TestOption(name="obstacle_avoid", id=41),
+    TestOption(name="set_obstacle_avoid", id=42),
+    TestOption(name="vui_light", id=43),
+    TestOption(name="set_vui_light", id=44),
+    TestOption(name="low_battery", id=45),
+    TestOption(name="restart_server", id=46),
 ]
 
 
@@ -124,17 +135,25 @@ if __name__ == "__main__":
         elif name == "recovery_stand":
             pprint(robot.sport.recovery_stand())
         elif name == "hello":
-            pprint(robot.sport.action("hello"))
+            pprint(robot.sport.hello())
         elif name == "stretch":
-            pprint(robot.sport.action("stretch"))
+            pprint(robot.sport.stretch())
         elif name == "sit":
             pprint(robot.sport.sit())
         elif name == "content":
-            pprint(robot.sport.action("content"))
+            pprint(robot.sport.content())
         elif name == "dance1":
-            pprint(robot.sport.action("dance1"))
+            pprint(robot.sport.dance1())
         elif name == "dance2":
-            pprint(robot.sport.action("dance2"))
+            pprint(robot.sport.dance2())
+        elif name == "heart":
+            pprint(robot.sport.heart())
+        elif name == "free_walk":
+            pprint(robot.sport.free_walk())
+        elif name == "static_walk":
+            pprint(robot.sport.static_walk())
+        elif name == "trot_run":
+            pprint(robot.sport.trot_run())
         elif name == "move forward":
             pprint(robot.sport.move(vx=0.3))
         elif name == "move lateral":
@@ -181,9 +200,10 @@ if __name__ == "__main__":
             slot = input("Relocate against slot: ").strip()
             pprint(robot.slam.start_relocation(name=slot))
         elif name == "record_waypoint":
+            # Just a named pose now — action-on-arrival and wait are route-
+            # stop properties instead, set when adding a waypoint to a route.
             wp_name = input("Waypoint name: ").strip()
-            wp_action = input("Action on arrival (blank for none, e.g. hello): ").strip() or None
-            pprint(robot.slam.record_waypoint(wp_name, action=wp_action))
+            pprint(robot.slam.record_waypoint(wp_name))
         elif name == "list_waypoints":
             pprint(robot.slam.list_waypoints())
         elif name == "goto_waypoint":
@@ -207,5 +227,26 @@ if __name__ == "__main__":
             print("E-stop is latched. Use 'estop reset' before further motion/posture commands.")
         elif name == "estop reset":
             pprint(robot.reset_emergency_stop())
+        elif name == "delete_map":
+            maps = robot.slam.list_maps()
+            print("Slots:", ", ".join("%s%s" % (s, " (used)" if maps["used"].get(s) else "") for s in maps["slots"]))
+            slot = input("Delete slot (irreversible): ").strip()
+            pprint(robot.slam.delete_map(slot))
+        elif name == "obstacle_avoid":
+            pprint(robot.obstacle_avoid())
+        elif name == "set_obstacle_avoid":
+            enable = input("Enable? (y/n): ").strip().lower().startswith("y")
+            pprint(robot.set_obstacle_avoid(enable))
+        elif name == "vui_light":
+            pprint(robot.vui_light())
+        elif name == "set_vui_light":
+            level = int(input("Brightness (0-10): ") or 0)
+            pprint(robot.set_vui_light(level))
+        elif name == "low_battery":
+            print("low_battery:", robot.low_battery())
+        elif name == "restart_server":
+            if input("This restarts the whole shep process — continue? (y/n): ").strip().lower().startswith("y"):
+                pprint(robot.restart_server())
+                print("shep is restarting; give it a few seconds before the next command.")
 
         time.sleep(1)
