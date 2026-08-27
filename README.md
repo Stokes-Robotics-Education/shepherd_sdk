@@ -4,8 +4,14 @@ A lightweight Python 3.8+ client for a `shep` service. HTTP control, snapshots,
 health, and telemetry snapshots use only the Python standard library.
 
 ```bash
-python3 -m pip install -e .
+python3 -m venv .venv
+.venv/bin/pip install -e .
 ```
+
+(A venv isn't required — `pip install -e .` just installs into whatever
+Python environment is active when you run it — but skipping it means
+installing into your system or user Python instead of somewhere
+self-contained.)
 
 `shep.local:8080` is the default, so the usual case is concise:
 
@@ -29,6 +35,19 @@ Live WebSocket telemetry is the sole optional SDK dependency:
 python3 -m pip install -e '.[telemetry]'
 python3 examples/telemetry/stream.py
 ```
+
+To uninstall:
+
+```bash
+.venv/bin/pip uninstall shepherd-sdk
+```
+
+(`shepherd-sdk` or `shepherd_sdk` both work — pip treats the hyphen and
+underscore as equivalent. If you installed with the venv above, deleting
+the whole `.venv/` directory works too. Either way, the source tree's own
+`src/shepherd_sdk.egg-info/` build-metadata directory is harmless leftover,
+not something uninstall needs to clean up — it's gitignored and safe to
+ignore or delete by hand.)
 
 ## Capabilities
 
