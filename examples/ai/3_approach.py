@@ -1,15 +1,16 @@
-"""Step 3 of 3: walk toward the closest match to TARGET, building on the
+"""Step 3 of 4: walk toward the closest match to TARGET, building on the
 same detect-and-filter idea as 2_count.py, now on a loop that also
 drives the robot.
 
-    1_see.py      look, and print everything found
-    2_count.py    count just one kind of thing
-    3_approach.py <- you are here: walk toward the closest match
+    1_see.py          look, and print everything found
+    2_count.py        count just one kind of thing
+    3_approach.py     <- you are here: walk toward the closest match
+    4_custom_model.py same walk, with a model you trained/downloaded yourself
 
 Each pass through the loop: take one snapshot, look for TARGET, and if
 found, take one small step toward it — turning to keep it centered,
 walking forward until it fills enough of the frame to count as "close".
-Then repeat.
+Then repeat, until it's close enough to stop and declare arrival.
 
 One photo per loop (rather than a continuous video stream) keeps this
 readable at the cost of a little smoothness — the robot updates its
@@ -24,7 +25,7 @@ Start with the Go2 supported and keep the physical controller ready.
 Usage:
     python3 examples/ai/3_approach.py [host]
 
-    Ctrl+C to stop.
+    Stops on its own once it arrives; Ctrl+C to stop early.
 """
 import sys
 import time
@@ -35,7 +36,7 @@ from ultralytics import YOLO
 
 from shepherd_sdk import Shepherd
 
-TARGET = "person"      # any class the model knows — see 2_count.py
+TARGET = "chair"        # any class the model knows — see 2_count.py
 FORWARD_SPEED = 0.3     # m/s, while approaching
 TURN_SPEED = 1.0        # rad/s, at most, while centering on TARGET
 CLOSE_ENOUGH = 0.5      # stop walking forward once TARGET's box fills
@@ -78,11 +79,14 @@ def main() -> None:
             vyaw = -offset * TURN_SPEED
 
             box_height_ratio = (y2 - y1) / frame_height  # 0 (small/far) .. 1 (fills the frame)
-            vx = FORWARD_SPEED if box_height_ratio < CLOSE_ENOUGH else 0.0
+            if box_height_ratio >= CLOSE_ENOUGH:
+                robot.sport.stop()
+                print(f"Arrived at '{TARGET}' ({box_height_ratio:.0%} of frame height).")
+                break
 
             print(f"target at {offset:+.2f}, {box_height_ratio:.0%} of frame height "
-                  f"-> vx={vx:.2f} vyaw={vyaw:.2f}")
-            robot.sport.move(vx, 0.0, vyaw)
+                  f"-> vx={FORWARD_SPEED:.2f} vyaw={vyaw:.2f}")
+            robot.sport.move(FORWARD_SPEED, 0.0, vyaw)
             time.sleep(0.15)
     finally:
         robot.sport.stop()

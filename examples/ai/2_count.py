@@ -1,10 +1,11 @@
-"""Step 2 of 3: look for one specific kind of thing and count how many
+"""Step 2 of 4: look for one specific kind of thing and count how many
 the robot's camera can see, instead of listing everything (1_see.py did
 that already).
 
-    1_see.py      look, and print everything found
-    2_count.py    <- you are here: count just one kind of thing
-    3_approach.py walk toward the closest match
+    1_see.py          look, and print everything found
+    2_count.py        <- you are here: count just one kind of thing
+    3_approach.py     walk toward the closest match
+    4_custom_model.py same walk, with a model you trained/downloaded yourself
 
 Needs OpenCV, NumPy, and Ultralytics — deliberately not core SDK
 dependencies, so install with the "all" extra: pip install -e '.[all]'

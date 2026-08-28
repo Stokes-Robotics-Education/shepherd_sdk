@@ -1,9 +1,10 @@
-"""Step 1 of 3: the simplest possible AI example. Take one photo with the
+"""Step 1 of 4: the simplest possible AI example. Take one photo with the
 robot's front camera and ask a pretrained YOLO model what's in it.
 
-    1_see.py      <- you are here: look, and print everything found
-    2_count.py    look for one specific kind of thing, and count it
-    3_approach.py walk toward the closest match
+    1_see.py          <- you are here: look, and print everything found
+    2_count.py        look for one specific kind of thing, and count it
+    3_approach.py     walk toward the closest match
+    4_custom_model.py same walk, with a model you trained/downloaded yourself
 
 Needs OpenCV, NumPy, and Ultralytics — deliberately not core SDK
 dependencies, so install with the "all" extra: pip install -e '.[all]'

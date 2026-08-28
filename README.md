@@ -188,9 +188,22 @@ only the high-level sport API, not raw joint control.
 | `front_camera/` | `snapshot.py` (save one JPEG), `live_view.py` (optional, OpenCV window over the MJPEG stream) |
 | `telemetry/` | `stream.py` — live WebSocket telemetry; `faults.py` — read the Fault Services diagnostic feed |
 | `slam/` | `mapping.py` (start/end a mapping session), `navigate.py` (relocalize + one nav goal), `service.py` (check/start/stop the SLAM service, handles the sudo-password handshake), `route_planner.py` (build a route from recorded waypoints, save it, run it) — all need the SLAM service actually running on the robot side |
-| `ai/` | Optional YOLO demos, in three build-up steps: `1_see.py` (snapshot + detect, print everything found), `2_count.py` (same, but filtered to one class of object), `3_approach.py` (loop: detect, then walk toward the closest match) |
+| `ai/` | Optional AI demos, in four build-up steps: `1_see.py` (snapshot + detect, print everything found), `2_count.py` (same, but filtered to one class of object), `3_approach.py` (loop: detect, then walk toward the closest match) — all three via Ultralytics/YOLO — then `4_custom_model.py`, the same approach loop driven by a model you bring yourself |
 
 `front_camera/live_view.py` and the `ai/` examples need OpenCV/NumPy (and
-Ultralytics for the AI examples) — deliberately not core SDK dependencies,
-covered by `pip install -e '.[all]'` above.
+Ultralytics for `1_see.py`/`2_count.py`/`3_approach.py`) — deliberately not
+core SDK dependencies, covered by `pip install -e '.[all]'` above.
+
+**Bring your own model (`4_custom_model.py`):** this example doesn't use
+Ultralytics — it's built around a `detect()` function you replace with a
+call into whatever model you trained or downloaded, typically a
+TensorFlow Lite export since that's the common target for anything
+running on a Pi/Jetson-class board. `pip install -e '.[all]'` does **not**
+cover this — it only knows about Ultralytics. Install whatever your own
+model needs yourself (e.g. `pip install tflite-runtime` for a `.tflite`
+model, or `pip install tensorflow` if `tflite-runtime` isn't available for
+your platform; `onnxruntime` for a `.onnx` model, etc.), and adjust
+`detect()` to match your model's actual inputs/outputs — the reference
+version in the file assumes the classic SSD MobileNet TFLite layout, which
+your export may not match.
 
