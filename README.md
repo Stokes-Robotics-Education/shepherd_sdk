@@ -159,6 +159,91 @@ something uninstall needs to clean up.)
 | `robot.telemetry` | One-shot state, or a live WebSocket stream/callback |
 | `robot` (top-level) | `health()`, `capabilities()`, `emergency_stop()`/`reset_emergency_stop()`, `obstacle_avoid()`/`set_obstacle_avoid()`, `vui_light()`/`set_vui_light()`, `low_battery()`, `restart_server()` |
 
+## Usage examples
+
+One runnable snippet per client, beyond the quick-start above. All of
+these assume `robot = Shepherd()` (or `Shepherd("192.168.4.74")`) already
+ran — see the linked `examples/` script for the full, safety-prompted
+version of each.
+
+**Movement and actions** (`robot.sport`) — full version:
+`examples/high_level/movement.py`
+
+```python
+robot.sport.stand_up()
+robot.sport.hello()                 # any named gesture/posture method...
+robot.sport.action("dance1")        # ...or the same thing via action(name)
+robot.sport.free_walk()             # gait-mode switch, not a one-off pose
+
+try:
+    robot.sport.move(vx=0.2)        # m/s forward; vy=lateral, vyaw=turn rad/s
+    time.sleep(0.15)                # refresh well under the ~200-250ms
+    robot.sport.move(vx=0.2)        # dead-man timeout while driving
+finally:
+    robot.sport.stop()
+```
+
+**Camera** (`robot.camera`) — full version:
+`examples/front_camera/snapshot.py`, `examples/front_camera/live_view.py`
+
+```python
+print(robot.camera.sources())              # e.g. ["front"]
+robot.camera.save_snapshot("front.jpg")    # one JPEG frame, saved to disk
+jpeg_bytes = robot.camera.snapshot()       # or the raw bytes, e.g. for OpenCV/YOLO
+print(robot.camera.stream_url())           # paste into a browser for live MJPEG
+```
+
+**Telemetry** (`robot.telemetry`) — full version:
+`examples/telemetry/stream.py`, `examples/telemetry/faults.py`
+
+```python
+state = robot.telemetry.get()                       # one-shot snapshot
+print(state["battery"], state["position"])
+
+for state in robot.telemetry.stream():               # live, needs '.[all]'
+    print(state["telemetry"]["battery"])              # (websocket-client)
+    break
+
+robot.telemetry.watch(lambda state: print(state))    # same stream, callback style
+```
+
+**SLAM — mapping, relocation, waypoints** (`robot.slam`) — full version:
+`examples/slam/mapping.py`, `examples/slam/navigate.py`, `examples/slam/service.py`
+
+```python
+print(robot.slam.service_status())          # {"available": ..., "running": ...}
+
+robot.slam.start_mapping()
+# ... drive the robot around the area (physical controller, or sport.move) ...
+robot.slam.end_mapping(name="map1")          # one of the 10 fixed slots
+
+robot.slam.start_relocation(name="map1")     # localize against a saved map
+robot.slam.pose_nav(x=1.0, y=0.0)            # fire-and-forget autonomous goal
+# poll for arrival — pose_nav is NOT subject to the dead-man timeout:
+state = robot.telemetry.get()
+print(state["telemetry"]["slam"]["task_result"])
+
+robot.slam.record_waypoint("kitchen")        # names the robot's CURRENT pose
+robot.slam.goto_waypoint("kitchen")          # pose_nav back to it later
+```
+
+**Routes — sequenced multi-waypoint runs** (`robot.route`) — full version:
+`examples/slam/route_planner.py`
+
+```python
+robot.route.set_relocate_map("map1")                       # relocalize first, each run()
+robot.route.add_stop("kitchen", wait_s=3, action="hello")  # waypoints from robot.slam above
+robot.route.add_stop("hallway")
+robot.route.save("morning_patrol")                         # reuse later (max 5 per map)
+
+robot.route.run()
+status = robot.route.status()
+print(status["running"], status["index"], status["log"])
+
+robot.route.load_saved("morning_patrol")                   # ... another day:
+robot.route.run()
+```
+
 ## Examples
 
 Every example takes the Shep host as an optional first positional argument,
